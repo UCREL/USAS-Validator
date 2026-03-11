@@ -39,7 +39,7 @@ jobs:
       
       - name: Build the Sphinx docs
         run: |
-          cd docs && uv run sphinx-build -M html source build
+          cd docs && uv run sphinx-build -W -b html source build
 
       - name: Upload built docs
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

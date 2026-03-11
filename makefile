@@ -19,4 +19,4 @@ live-docs:
 .PHONY: build-docs
 build-docs:
 	@echo "Building documentation to directory ./docs/build"
-	@cd docs && uv run sphinx-build -M html source build
+	@cd docs && uv run sphinx-build -W -b html source build
