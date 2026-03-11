@@ -11,3 +11,12 @@ test:
 	@echo "Testing with coverage"
 	@uv run coverage run
 	@uv run coverage report
+
+.PHONY: live-docs
+live-docs:
+	@cd docs && uv run sphinx-autobuild source build --port 9000 --open-browser --host 127.0.0.1
+
+.PHONY: build-docs
+build-docs:
+	@echo "Building documentation to directory ./docs/build"
+	@cd docs && uv run sphinx-build -M html source build

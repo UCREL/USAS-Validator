@@ -1,6 +1,6 @@
 # USAS-Validator
 
-Validates USAS semantic tags and loads through the Python package a USAS mapper of USAS tags to their descriptions.
+Validates USAS semantic tags, and other useful utilities for USAS semantic tags.
 
 ## Installation
 
@@ -78,7 +78,7 @@ To run locally first ensure you have the following tools installted locally:
 When developing on the project you will want to install the Python package locally in editable format with all the extra requirements, this can be done like so:
 
 ```bash
-uv sync
+uv sync --all-extras
 ```
 
 ### Linting
@@ -97,4 +97,30 @@ To run the tests (uses pytest and coverage) and generate a coverage report:
 
 ``` bash
 make test
+```
+
+### Documentation Website
+
+#### Setup
+
+``` bash
+mkdir docs
+cd docs
+sphinx-quickstart
+```
+
+The documentation site is split into `source` and `build` directories whereby the `source` directory contains all of the files that will be used to generate the documentation and `build` contains all of the files that have been generated through the `sphinx-build` command that will be served as the documentation through a web server. 
+
+#### Development
+
+To create a local live documentation site at [http://127.0.0.1:9000](http://127.0.0.1:9000) with auto reload on edits/changes:
+
+``` bash
+make live-docs
+```
+
+To build the documentation, this will build/create the documentation files to [./docs/build/](./docs/build/):
+
+``` bash
+make build-docs
 ```

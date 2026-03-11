@@ -11,7 +11,13 @@ RUN apt-get -y update \
     openssh-client \
     ca-certificates \
     gnupg2 \
+    locales \
     && rm -rf /var/lib/apt/lists/*
+
+RUN locale-gen en_US \
+    && locale-gen en_US.UTF-8 \
+    && update-locale LC_ALL=en_US.UTF-8 \
+    && update-locale LANG=en_US.UTF-8
 
 ARG USERNAME=ubuntu
 
