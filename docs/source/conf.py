@@ -28,7 +28,8 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'sphinx_copybutton',
-    'sphinx_autodoc_typehints'
+    'sphinx_autodoc_typehints',
+    'sphinx.ext.githubpages'
 ]
 
 # autodoc settings
