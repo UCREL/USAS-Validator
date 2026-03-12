@@ -17,66 +17,67 @@ def get_test_usas_mapper_directory(get_test_utils_directory: Path) -> Path:  # n
     return get_test_utils_directory / "usas_mapper"
 
 
-def test_parse_usas_token_group() -> None:
+@pytest.mark.parametrize("strict", [True, False])
+def test_parse_usas_token_group(strict: bool) -> None:
     """Test the parse_usas_token_group function with various USAS tag formats."""
     
     # Test simple single tag
-    result = utils.parse_usas_token_group("A1.1.1")
+    result = utils.parse_usas_token_group("A1.1.1", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="A1.1.1")])]
     assert result == expected
     
     # Test tag with positive markers
-    result = utils.parse_usas_token_group("X5.2+")
+    result = utils.parse_usas_token_group("X5.2+", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="X5.2", number_positive_markers=1)])]
     assert result == expected
     
-    result = utils.parse_usas_token_group("X5.2++")
+    result = utils.parse_usas_token_group("X5.2++", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="X5.2", number_positive_markers=2)])]
     assert result == expected
     
     # Test tag with negative markers
-    result = utils.parse_usas_token_group("E3-")
+    result = utils.parse_usas_token_group("E3-", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="E3", number_negative_markers=1)])]
     assert result == expected
     
-    result = utils.parse_usas_token_group("O4.2--")
+    result = utils.parse_usas_token_group("O4.2--", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="O4.2", number_negative_markers=2)])]
     assert result == expected
     
     # Test tag with gender markers
-    result = utils.parse_usas_token_group("S2mf")
+    result = utils.parse_usas_token_group("S2mf", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="S2", male=True, female=True)])]
     assert result == expected
     
-    result = utils.parse_usas_token_group("S2m")
+    result = utils.parse_usas_token_group("S2m", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="S2", male=True)])]
     assert result == expected
     
-    result = utils.parse_usas_token_group("S2f")
+    result = utils.parse_usas_token_group("S2f", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="S2", female=True)])]
     assert result == expected
     
     # Test tag with rarity markers
-    result = utils.parse_usas_token_group("A1%")
+    result = utils.parse_usas_token_group("A1%", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="A1", rarity_marker_1=True)])]
     assert result == expected
     
-    result = utils.parse_usas_token_group("B2@")
+    result = utils.parse_usas_token_group("B2@", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="B2", rarity_marker_2=True)])]
     assert result == expected
     
     # Test tag with antecedent marker
-    result = utils.parse_usas_token_group("A1c")
+    result = utils.parse_usas_token_group("A1c", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="A1", antecedents=True)])]
     assert result == expected
     
     # Test tag with neuter marker
-    result = utils.parse_usas_token_group("A1n")
+    result = utils.parse_usas_token_group("A1n", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="A1", neuter=True)])]
     assert result == expected
     
     # Test combined tags with slash
-    result = utils.parse_usas_token_group("Z2/S2mf")
+    result = utils.parse_usas_token_group("Z2/S2mf", strict=strict)
     expected = [USASTagGroup(tags=[
         USASTag(tag="Z2"),
         USASTag(tag="S2", male=True, female=True)
@@ -84,7 +85,7 @@ def test_parse_usas_token_group() -> None:
     assert result == expected
     
     # Test multiple tag groups
-    result = utils.parse_usas_token_group("L1 E3- O4.2-")
+    result = utils.parse_usas_token_group("L1 E3- O4.2-", strict=strict)
     expected = [
         USASTagGroup(tags=[USASTag(tag="L1")]),
         USASTagGroup(tags=[USASTag(tag="E3", number_negative_markers=1)]),
@@ -93,7 +94,8 @@ def test_parse_usas_token_group() -> None:
     assert result == expected
     
     # Test complex example from docstring
-    result = utils.parse_usas_token_group("L1 E3- O4.2- X5.2+ A6.2- A1.7- A7- W3 L2 F1 S1.2.4- Z2 Z2/S2mf Z3 O4.3 G1.2 G1.2/S2mf")
+    result = utils.parse_usas_token_group("L1 E3- O4.2- X5.2+ A6.2- A1.7- A7- W3 L2 F1 S1.2.4- Z2 Z2/S2mf Z3 O4.3 G1.2 G1.2/S2mf",
+                                          strict=strict)
     expected = [
         USASTagGroup(tags=[USASTag(tag="L1")]),
         USASTagGroup(tags=[USASTag(tag="E3", number_negative_markers=1)]),
@@ -121,36 +123,66 @@ def test_parse_usas_token_group() -> None:
     ]
     assert result == expected
 
+    # Test that it can parse the `Df` tag
+    result = utils.parse_usas_token_group("Df", strict=strict)
+    expected = [USASTagGroup(tags=[USASTag(tag="Df")])]
+    assert result == expected
+
+    # Test that it can parse the `Df` tag with affixes
+    result = utils.parse_usas_token_group("Df++", strict=strict)
+    expected = [USASTagGroup(tags=[USASTag(tag="Df", number_positive_markers=2)])]
+    assert result == expected
+
     # Test that it can parse the whole USAS tagset
     for usas_tag in utils.load_usas_mapper(None, None).keys():
-        result = utils.parse_usas_token_group(usas_tag)
+        result = utils.parse_usas_token_group(usas_tag, strict=strict)
         expected = [USASTagGroup(tags=[USASTag(tag=usas_tag)])]
         assert result == expected
     
     # Test edge cases
-    result = utils.parse_usas_token_group("")
+    result = utils.parse_usas_token_group("", strict=strict)
     expected = []
     assert result == expected
     
-    result = utils.parse_usas_token_group(" ")
+    result = utils.parse_usas_token_group(" ", strict=strict)
     assert result == expected
 
-    result = utils.parse_usas_token_group("   ")
+    result = utils.parse_usas_token_group("   ", strict=strict)
     assert result == expected
 
-    result = utils.parse_usas_token_group("PUNCT")
+    empty_string_after_slash = "Z1/  Z2"
+    if strict:
+        with pytest.raises(ValueError):
+            utils.parse_usas_token_group(empty_string_after_slash, strict=strict)
+    else:
+        result = utils.parse_usas_token_group("Z1/  Z2", strict=strict)
+        expected = [USASTagGroup(tags=[USASTag(tag="Z1")]), USASTagGroup(tags=[USASTag(tag="Z2")])]
+        assert result == expected
+
+    result = utils.parse_usas_token_group("PUNCT", strict=strict)
     expected = [USASTagGroup(tags=[USASTag(tag="PUNCT")])]
     assert result == expected
     
-    # Test invalid tag format
-    with pytest.raises(ValueError):
-        utils.parse_usas_token_group("invalid_tag")
-    
-    with pytest.raises(ValueError):
-        utils.parse_usas_token_group("123")
-    
-    with pytest.raises(ValueError):
-        utils.parse_usas_token_group("L1 invalid_tag")
+    if strict:
+        # Test invalid tag format
+        with pytest.raises(ValueError):
+            utils.parse_usas_token_group("invalid_tag", strict=strict)
+        
+        with pytest.raises(ValueError):
+            utils.parse_usas_token_group("123", strict=strict)
+        
+        with pytest.raises(ValueError):
+            utils.parse_usas_token_group("L1 invalid_tag", strict=strict)
+    else:
+        # Test invalid tag format
+        result = utils.parse_usas_token_group("invalid_tag", strict=strict)
+        assert result == []
+        
+        result = utils.parse_usas_token_group("123", strict=strict)
+        assert result == []
+        
+        result = utils.parse_usas_token_group("L1 invalid_tag", strict=strict)
+        assert result == [USASTagGroup(tags=[USASTag(tag="L1")])]
 
 
 @pytest.mark.parametrize("usas_tag_description_file_str",

@@ -44,6 +44,12 @@ autodoc_default_options = {
 
 autodoc_member_order = 'bysource'  # Keep source file ordering
 
+# Include default values when documenting parameter types.
+typehints_defaults = "comma"
+
+copybutton_prompt_text = r">>> |\.\.\. "
+copybutton_prompt_is_regexp = True
+
 
 templates_path = ['_templates']
 exclude_patterns = []

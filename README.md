@@ -124,3 +124,9 @@ To build the documentation, this will build/create the documentation files to [.
 ``` bash
 make build-docs
 ```
+
+To build the documentation for GitHub Pages:
+
+``` bash
+make build-docs-gh
+```
