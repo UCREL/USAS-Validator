@@ -6,6 +6,14 @@ from pydantic import BaseModel, Field
 class USASTag(BaseModel):
     """
     Represents all of the properties associated with a USAS tag.
+
+    Examples:
+        >>> from usas_validator.usas_tag import USASTag
+        >>> USASTag(tag="A1.1.1")
+        USASTag(tag='A1.1.1', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)
+
+        >>> USASTag(tag="S2", female=True, male=True)
+        USASTag(tag='S2', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=True, male=True, antecedents=False, neuter=False, idiom=False)
     """
 
     tag: str = Field(title="USAS Tag", description="USAS Tag", examples=["A1.1.1"])
@@ -81,6 +89,14 @@ class USASTagGroup(BaseModel):
     """
     Represents a grouping of one or more USAS tags that are associated to a
     token.
+
+    Examples:
+        >>> from usas_validator.usas_tag import USASTag, USASTagGroup
+        >>> USASTagGroup(tags=[USASTag(tag="A1.1.1")])
+        USASTagGroup(tags=[USASTag(tag='A1.1.1', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)])
+
+        >>> USASTagGroup(tags=[USASTag(tag="E2", number_negative_markers=1), USASTag(tag="S7.1", number_positive_markers=1)])
+        USASTagGroup(tags=[USASTag(tag='E2', number_positive_markers=0, number_negative_markers=1, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False), USASTag(tag='S7.1', number_positive_markers=1, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)])
     """
 
     _tags_description = (

@@ -75,8 +75,11 @@ extend-select = ["I"]
 [tool.pytest.ini_options]
 minversion = "7.0"
 testpaths = [
-    "tests"
+    "tests",
+    "src",
 ]
+addopts = "--doctest-modules"
+doctest_optionflags = ["NORMALIZE_WHITESPACE"]
 
 [tool.coverage.run]
 branch = true

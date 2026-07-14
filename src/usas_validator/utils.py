@@ -55,14 +55,16 @@ def parse_usas_token_group(usas_tag_group_text: str,
         >>> from usas_validator.utils import parse_usas_token_group
         >>> usas_token_groups = parse_usas_token_group("Z2/S2mf Z3")
         >>> for usas_token_group in usas_token_groups:
-        >>>     print(usas_token_group)
+        ...     print(usas_token_group)
         tags=[USASTag(tag='Z2', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False), USASTag(tag='S2', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=True, male=True, antecedents=False, neuter=False, idiom=False)]
-        tags=[USASTag(tag='Z3', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)]        
+        tags=[USASTag(tag='Z3', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)]
 
         When using `strict=True`:
 
         >>> from usas_validator.utils import parse_usas_token_group
         >>> parse_usas_token_group("Invalid", strict=True)
+        Traceback (most recent call last):
+            ...
         ValueError: Cannot find the tag for this USAS tag text: Invalid
 
         When using `strict=False` (default) you can ignore invalid USAS tags within the text you are parsing,
@@ -213,7 +215,7 @@ def load_usas_mapper(usas_tag_descriptions_file: Path | None,
         >>> from usas_validator.utils import load_usas_mapper
         >>> usas_tag_descriptions = load_usas_mapper(None, None)
         >>> usas_tag_descriptions["X1"]
-        title: General description: General terms relating to psychological actions, states and processes
+        'title: General description: General terms relating to psychological actions, states and processes'
     """
 
     def _get_usas_tag_descriptions(usas_tag_name: str,
