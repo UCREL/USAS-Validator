@@ -309,3 +309,40 @@ def test_mwe_token_indexes_from_slices() -> None:
     # Test a slice where start == end contributes no indexes.
     result = utils.mwe_token_indexes_from_slices([(3, 3)])
     assert result == frozenset()
+
+
+def test_mwe_token_labels_from_indexes() -> None:
+    """Test the mwe_token_labels_from_indexes function with various MWE indexes."""
+
+    # Test contiguous and discontinuous MWEs, labelled by starting position order.
+    result = utils.mwe_token_labels_from_indexes([frozenset({0, 1, 3}), frozenset({2, 3})], 4)
+    assert result == [{1}, {1}, {2}, {1, 2}]
+
+    # Test tokens not part of any MWE are represented as an empty set.
+    result = utils.mwe_token_labels_from_indexes([frozenset({2, 3})], 5)
+    assert result == [set(), set(), {1}, {1}, set()]
+
+    # Test labels are assigned by starting position order, not input list order.
+    result = utils.mwe_token_labels_from_indexes([frozenset({3, 4}), frozenset({0, 1})], 5)
+    assert result == [{1}, {1}, set(), {2}, {2}]
+
+    # Test no MWEs, every token gets an empty set.
+    result = utils.mwe_token_labels_from_indexes([], 3)
+    assert result == [set(), set(), set()]
+
+    # Test zero tokens with no MWEs returns an empty list.
+    result = utils.mwe_token_labels_from_indexes([], 0)
+    assert result == []
+
+    # Test an empty frozenset for a MWE is rejected.
+    with pytest.raises(ValueError):
+        utils.mwe_token_labels_from_indexes([frozenset()], 3)
+
+    # Test a negative token index is rejected rather than silently wrapping
+    # around to the end of the list.
+    with pytest.raises(ValueError):
+        utils.mwe_token_labels_from_indexes([frozenset({-1})], 3)
+
+    # Test a token index at or beyond number_tokens is rejected.
+    with pytest.raises(ValueError):
+        utils.mwe_token_labels_from_indexes([frozenset({3})], 3)

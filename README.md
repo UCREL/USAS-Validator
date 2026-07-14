@@ -1,6 +1,6 @@
 # USAS-Validator
 
-Validates USAS semantic tags, and other useful utilities for USAS semantic tags.
+Validates USAS semantic tags, and other useful utilities for USAS semantic tags and Multi Word Expression (MWE) identification.
 
 ## Installation
 

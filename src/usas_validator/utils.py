@@ -372,32 +372,46 @@ def mwe_token_indexes_from_slices(mwe_index_slices: list[tuple[int, int]]) -> fr
     return frozenset(all_mwe_token_indexes)
 
 
-def mwe_token_label_from_indices(mwe_indexes: list[frozenset[int]], number_tokens: int) -> list[set[int]]:
+def mwe_token_labels_from_indexes(mwe_indexes: list[frozenset[int]], number_tokens: int) -> list[set[int]]:
     """
-    Represents each MWE as a unique label determined by the starting position of the first token, 
-    the first MWE is labelled 1 and the second 2 and so on. Each label exists in the returned
-    list at the same index as the corresponding MWE.
+    Represents each MWE as a unique label, ordered by the starting position of its
+    first token, the first MWE is labelled 1 and the second 2 and so on. Each token's
+    labels are stored at that token's index in the returned list.
 
     Args:
-        mwe_indexes: A list of frozensets of token indexes for each MWE.
+        mwe_indexes: A list of frozensets of token indexes for each MWE. Every
+            frozenset must be non-empty and every index must satisfy
+            `0 <= index < number_tokens`.
         number_tokens: The number of tokens in the sentence.
 
     Returns:
-        A list of sets that contain unique labels, one unique label per MWE.
-        A MWE is represented by the tokens that are associated with each label.
-        If a token does not belong to a MWE it is represented as an empty set.
+        A list, of length `number_tokens`, of sets that contain unique labels, one
+        unique label per MWE. A MWE is represented by the tokens that are associated
+        with each label. If a token does not belong to a MWE it is represented as an
+        empty set.
+
+    Raises:
+        ValueError: If any frozenset in `mwe_indexes` is empty, or if any token
+            index within `mwe_indexes` is not in the range `0 <= index < number_tokens`.
 
     Examples:
-        >>> from usas_validator.utils import mwe_token_label_from_indices
-        >>> mwe_token_label_from_indices([frozenset({0, 1, 3}), frozenset({2, 3})], 4)
+        >>> from usas_validator.utils import mwe_token_labels_from_indexes
+        >>> mwe_token_labels_from_indexes([frozenset({0, 1, 3}), frozenset({2, 3})], 4)
         [{1}, {1}, {2}, {1, 2}]
 
         When a token in the text does not belong to a MWE it is represented as an empty set:
 
-        >>> from usas_validator.utils import mwe_token_label_from_indices
-        >>> mwe_token_label_from_indices([frozenset({2, 3})], 5)
+        >>> from usas_validator.utils import mwe_token_labels_from_indexes
+        >>> mwe_token_labels_from_indexes([frozenset({2, 3})], 5)
         [set(), set(), {1}, {1}, set()]
     """
+    for mwe_index in mwe_indexes:
+        if not mwe_index:
+            raise ValueError("Cannot label an empty MWE, every frozenset in "
+                              "`mwe_indexes` must contain at least one token index.")
+        if min(mwe_index) < 0 or max(mwe_index) >= number_tokens:
+            raise ValueError(f"MWE token indexes {mwe_index} are not all within "
+                              f"range 0 <= index < number_tokens ({number_tokens}).")
 
     # Determine the starting position of the first token for each MWE.
     mwe_indexes_with_min_index: list[tuple[frozenset[int], int]] = [(mwe_index, min(mwe_index)) for mwe_index in mwe_indexes]
@@ -406,9 +420,8 @@ def mwe_token_label_from_indices(mwe_indexes: list[frozenset[int]], number_token
     mwe_indexes_with_min_index.sort(key=lambda mwe_index_with_min_index: mwe_index_with_min_index[1])
 
     # Assign unique labels to the MWEs.
-
     mwe_labels: list[set[int]] = [set() for _ in range(number_tokens)]
-    
+
     for mwe_label, mwe_index_with_min_value in enumerate(mwe_indexes_with_min_index, start=1):
         for mwe_index in mwe_index_with_min_value[0]:
             mwe_labels[mwe_index].add(mwe_label)
