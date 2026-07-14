@@ -1,7 +1,7 @@
 # Quick guide
 
 ```{eval-rst}
-If you have a a list of USAS semantic tags in a String like so it will validate that they follow the USAS semantic tag schema and return them as a :py:class:`list` of :py:class:`usas_validator.usas_tag.USASTagGroup`:
+If you have a a list of USAS semantic tags in a String like so it will validate that they follow the USAS semantic tag schema and return them as a :class:`list` of :class:`usas_validator.usas_tag.USASTagGroup`:
 ```
 
 ``` python
@@ -19,6 +19,29 @@ tags=[USASTag(tag='Z2', number_positive_markers=0, number_negative_markers=0, ra
 
 tags=[USASTag(tag='E3', number_positive_markers=0, number_negative_markers=1, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)]
 ```
+
+```{eval-rst}
+If you only want to keep tags that are known/valid (e.g. from a set of tags you trust or that came from :func:`usas_validator.utils.load_usas_mapper`), you can filter a USAS tag string down to just those tags:
+```
+
+``` python
+from usas_validator import utils
+usas_tag_string = "Z2/S2mf E3-"
+valid_usas_tags = {"Z2", "E3"}
+usas_tag_groups = utils.keep_valid_usas_tags(usas_tag_string, valid_usas_tags)
+for usas_token_group in usas_tag_groups:
+  print(usas_token_group)
+  print()
+```
+
+Output:
+``` bash
+tags=[USASTag(tag='Z2', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)]
+
+tags=[USASTag(tag='E3', number_positive_markers=0, number_negative_markers=1, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)]
+```
+
+Notice that `S2mf` was dropped from the first group as `S2` is not in `valid_usas_tags`, but as `Z2` was still valid the group is kept. If every tag in a group is filtered out, the whole group is dropped from the result.
 
 You can also load all the USAS tags and their descriptions like so:
 ``` python
