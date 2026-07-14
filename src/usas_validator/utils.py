@@ -292,3 +292,41 @@ def load_usas_mapper(usas_tag_descriptions_file: Path | None,
             tmp_usas_mapping[key] = value
         usas_mapping = tmp_usas_mapping
     return usas_mapping
+
+
+def filter_non_usas_valid_tags(usas_tag_string: str, valid_usas_tags: set[str]) -> list[USASTagGroup]:
+    """
+    Filter a USAS tag string to only include tags present in a given set of valid tags.
+
+    Parses the input string into :class:`~usas_validator.usas_tag.USASTagGroup` objects (in non-strict mode,
+    so malformed tags are skipped rather than raising errors), then removes any
+    individual :class:`~usas_validator.usas_tag.USASTag` whose base tag is not in ``valid_usas_tags``.
+    Tag groups that become empty after filtering are dropped entirely.
+
+    Args:
+        usas_tag_string: A space-separated string of USAS tag groups, e.g. ``"Z2/S2mf E3-"``.
+        valid_usas_tags: A set of acceptable base USAS tag strings (e.g. ``{"Z2", "E3"}``).
+            Typically obtained from :func:`~usas_validator.utils.load_usas_mapper`.
+
+    Returns:
+        A list of :class:`~usas_validator.usas_tag.USASTagGroup` objects containing only tags whose base
+        tag appears in ``valid_usas_tags``. Groups with no remaining valid tags
+        are excluded.
+
+    Examples:
+        >>> from usas_validator.utils import filter_non_usas_valid_tags
+        >>> valid = {"Z2", "E3"}
+        >>> filter_non_usas_valid_tags("Z2/S2mf E3-", valid)
+        [USASTagGroup(tags=[USASTag(tag='Z2', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)]), USASTagGroup(tags=[USASTag(tag='E3', number_positive_markers=0, number_negative_markers=1, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)])]
+
+        >>> filter_non_usas_valid_tags("Z2/S2mf E3-", {"Z2"})
+        [USASTagGroup(tags=[USASTag(tag='Z2', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)])]
+    """
+    all_valid_usas_tag_groups = parse_usas_token_group(usas_tag_string, strict=False)
+    filtered_usas_tag_groups = []
+    for usas_tag_group in all_valid_usas_tag_groups:
+        filtered_usas_tags = [usas_tag for usas_tag in usas_tag_group.tags
+                                             if usas_tag.tag in valid_usas_tags]
+        if filtered_usas_tags:
+            filtered_usas_tag_groups.append(USASTagGroup(tags=filtered_usas_tags))
+    return filtered_usas_tag_groups
