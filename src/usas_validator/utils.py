@@ -294,7 +294,7 @@ def load_usas_mapper(usas_tag_descriptions_file: Path | None,
     return usas_mapping
 
 
-def filter_non_usas_valid_tags(usas_tag_string: str, valid_usas_tags: set[str]) -> list[USASTagGroup]:
+def keep_valid_usas_tags(usas_tag_string: str, valid_usas_tags: set[str]) -> list[USASTagGroup]:
     """
     Filter a USAS tag string to only include tags present in a given set of valid tags.
 
@@ -314,12 +314,12 @@ def filter_non_usas_valid_tags(usas_tag_string: str, valid_usas_tags: set[str]) 
         are excluded.
 
     Examples:
-        >>> from usas_validator.utils import filter_non_usas_valid_tags
+        >>> from usas_validator.utils import keep_valid_usas_tags
         >>> valid = {"Z2", "E3"}
-        >>> filter_non_usas_valid_tags("Z2/S2mf E3-", valid)
+        >>> keep_valid_usas_tags("Z2/S2mf E3-", valid)
         [USASTagGroup(tags=[USASTag(tag='Z2', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)]), USASTagGroup(tags=[USASTag(tag='E3', number_positive_markers=0, number_negative_markers=1, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)])]
 
-        >>> filter_non_usas_valid_tags("Z2/S2mf E3-", {"Z2"})
+        >>> keep_valid_usas_tags("Z2/S2mf E3-", {"Z2"})
         [USASTagGroup(tags=[USASTag(tag='Z2', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)])]
     """
     all_valid_usas_tag_groups = parse_usas_token_group(usas_tag_string, strict=False)

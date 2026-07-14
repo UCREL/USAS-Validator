@@ -248,11 +248,11 @@ def test_load_usas_mapper_duplicate_key(get_test_usas_mapper_directory: Path) ->
         utils.load_usas_mapper(duplicate_key_usas_tag_description_file, None)
 
 
-def test_filter_non_usas_valid_tags() -> None:
-    """Test the filter_non_usas_valid_tags function with various USAS tag strings."""
+def test_keep_valid_usas_tags() -> None:
+    """Test the keep_valid_usas_tags function with various USAS tag strings."""
 
     # Test all tags in all groups are valid, nothing filtered out.
-    result = utils.filter_non_usas_valid_tags("Z2/S2mf E3-", {"Z2", "S2", "E3"})
+    result = utils.keep_valid_usas_tags("Z2/S2mf E3-", {"Z2", "S2", "E3"})
     expected = [
         USASTagGroup(tags=[USASTag(tag="Z2"), USASTag(tag="S2", male=True, female=True)]),
         USASTagGroup(tags=[USASTag(tag="E3", number_negative_markers=1)])
@@ -261,21 +261,21 @@ def test_filter_non_usas_valid_tags() -> None:
 
     # Test that only one tag within a group is valid, so the group is
     # kept but the invalid tag within it is removed.
-    result = utils.filter_non_usas_valid_tags("Z2/S2mf E3-", {"Z2"})
+    result = utils.keep_valid_usas_tags("Z2/S2mf E3-", {"Z2"})
     expected = [USASTagGroup(tags=[USASTag(tag="Z2")])]
     assert result == expected
 
     # Test that nothing is valid, resulting in an empty list.
-    result = utils.filter_non_usas_valid_tags("Z2/S2mf E3-", set())
+    result = utils.keep_valid_usas_tags("Z2/S2mf E3-", set())
     assert result == []
 
     # Test with an empty valid tag string, resulting in an empty list.
-    result = utils.filter_non_usas_valid_tags("", {"Z2", "E3"})
+    result = utils.keep_valid_usas_tags("", {"Z2", "E3"})
     assert result == []
 
     # Test that tags which are unparsable are ignored, same as
     # parse_usas_token_group(strict=False).
-    result = utils.filter_non_usas_valid_tags("Z1/NONE Z2 invalid_tag", {"Z1", "Z2"})
+    result = utils.keep_valid_usas_tags("Z1/NONE Z2 invalid_tag", {"Z1", "Z2"})
     expected = [
         USASTagGroup(tags=[USASTag(tag="Z1")]),
         USASTagGroup(tags=[USASTag(tag="Z2")])
