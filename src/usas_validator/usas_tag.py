@@ -118,3 +118,18 @@ class USASTagGroup(BaseModel):
     A list of USAS tags that are associated to a token. This grouping
         of USAS tags is a way of representing multi tag membership.
     """
+
+    @property
+    def tag_strings(self) -> list[str]:
+        """The raw USAS tag string of each tag in the group.
+
+        Returns:
+            The `tag` attribute of every `USASTag` in `tags`, in order.
+
+        Examples:
+            >>> from usas_validator.usas_tag import USASTag, USASTagGroup
+            >>> group = USASTagGroup(tags=[USASTag(tag="E2"), USASTag(tag="S7.1")])
+            >>> group.tag_strings
+            ['E2', 'S7.1']
+        """
+        return [tag.tag for tag in self.tags]
