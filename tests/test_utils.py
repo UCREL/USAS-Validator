@@ -281,3 +281,31 @@ def test_keep_valid_usas_tags() -> None:
         USASTagGroup(tags=[USASTag(tag="Z2")])
     ]
     assert result == expected
+
+
+def test_mwe_token_indexes_from_slices() -> None:
+    """Test the mwe_token_indexes_from_slices function with various index slices."""
+
+    # Test a single multi-token slice, end is exclusive.
+    result = utils.mwe_token_indexes_from_slices([(2, 5)])
+    assert result == frozenset({2, 3, 4})
+
+    # Test a single token MWE, represented as (i, i + 1).
+    result = utils.mwe_token_indexes_from_slices([(0, 1)])
+    assert result == frozenset({0})
+
+    # Test multiple, overlapping slices are merged into one frozenset.
+    result = utils.mwe_token_indexes_from_slices([(0, 2), (1, 3), (5, 6)])
+    assert result == frozenset({0, 1, 2, 5})
+
+    # Test multiple, non-overlapping slices.
+    result = utils.mwe_token_indexes_from_slices([(0, 2), (4, 6)])
+    assert result == frozenset({0, 1, 4, 5})
+
+    # Test an empty list of slices returns an empty frozenset.
+    result = utils.mwe_token_indexes_from_slices([])
+    assert result == frozenset()
+
+    # Test a slice where start == end contributes no indexes.
+    result = utils.mwe_token_indexes_from_slices([(3, 3)])
+    assert result == frozenset()

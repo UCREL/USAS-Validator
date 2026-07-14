@@ -334,22 +334,82 @@ def keep_valid_usas_tags(usas_tag_string: str, valid_usas_tags: set[str]) -> lis
     return filtered_usas_tag_groups
 
 
-def get_all_mwe_token_indexes(mwe_index_slices: list[tuple[int, int]]) -> frozenset[int]:
+def mwe_token_indexes_from_slices(mwe_index_slices: list[tuple[int, int]]) -> frozenset[int]:
     """
-    Given a list of tuples that represent the start and end indexes of a
-    Multi Word Expression (MWE), it returns a frozenset of all the token indexes
-    that are part of the MWE. If the MWE is a single token then it returns a
-    frozenset of length 1 which is start index.
+    Expand a list of Multi Word Expression (MWE) index slices into the individual
+    token indexes they cover.
+
+    Each tuple is a `(start, end)` slice, with `end` exclusive, in the same way as
+    the built-in `range`, e.g. `(2, 5)` covers indexes `2`, `3`, and `4`. A single
+    token MWE is therefore represented as `(i, i + 1)`, which expands to just `i`.
 
     Args:
-        mwe_index_slices: A list of tuples that represent the start and end indexes of a
-            Multi Word Expression (MWE).
+        mwe_index_slices: A list of `(start, end)` tuples, one per MWE, where
+            `end` is exclusive.
 
     Returns:
-        A frozenset of all the token indexes that are part of the MWE, even if
-            the MWE is a single token.
+        A frozenset of every token index covered by any of the given slices.
+
+    Examples:
+        >>> from usas_validator.utils import mwe_token_indexes_from_slices
+        >>> sorted(mwe_token_indexes_from_slices([(2, 5)]))
+        [2, 3, 4]
+
+        A single token MWE, represented as `(i, i + 1)`:
+
+        >>> sorted(mwe_token_indexes_from_slices([(0, 1)]))
+        [0]
+
+        Multiple, possibly overlapping, MWE slices are merged into one frozenset 
+        this can occur with MWEs that are discontinuous:
+
+        >>> sorted(mwe_token_indexes_from_slices([(0, 2), (1, 3), (5, 6)]))
+        [0, 1, 2, 5]
     """
     all_mwe_token_indexes = set()
     for mwe_index_range in mwe_index_slices:
         all_mwe_token_indexes.update(range(*mwe_index_range))
     return frozenset(all_mwe_token_indexes)
+
+
+def mwe_token_label_from_indices(mwe_indexes: list[frozenset[int]], number_tokens: int) -> list[set[int]]:
+    """
+    Represents each MWE as a unique label determined by the starting position of the first token, 
+    the first MWE is labelled 1 and the second 2 and so on. Each label exists in the returned
+    list at the same index as the corresponding MWE.
+
+    Args:
+        mwe_indexes: A list of frozensets of token indexes for each MWE.
+        number_tokens: The number of tokens in the sentence.
+
+    Returns:
+        A list of sets that contain unique labels, one unique label per MWE.
+        A MWE is represented by the tokens that are associated with each label.
+        If a token does not belong to a MWE it is represented as an empty set.
+
+    Examples:
+        >>> from usas_validator.utils import mwe_token_label_from_indices
+        >>> mwe_token_label_from_indices([frozenset({0, 1, 3}), frozenset({2, 3})], 4)
+        [{1}, {1}, {2}, {1, 2}]
+
+        When a token in the text does not belong to a MWE it is represented as an empty set:
+
+        >>> from usas_validator.utils import mwe_token_label_from_indices
+        >>> mwe_token_label_from_indices([frozenset({2, 3})], 5)
+        [set(), set(), {1}, {1}, set()]
+    """
+
+    # Determine the starting position of the first token for each MWE.
+    mwe_indexes_with_min_index: list[tuple[frozenset[int], int]] = [(mwe_index, min(mwe_index)) for mwe_index in mwe_indexes]
+
+    # Sort the MWEs by starting position.
+    mwe_indexes_with_min_index.sort(key=lambda mwe_index_with_min_index: mwe_index_with_min_index[1])
+
+    # Assign unique labels to the MWEs.
+
+    mwe_labels: list[set[int]] = [set() for _ in range(number_tokens)]
+    
+    for mwe_label, mwe_index_with_min_value in enumerate(mwe_indexes_with_min_index, start=1):
+        for mwe_index in mwe_index_with_min_value[0]:
+            mwe_labels[mwe_index].add(mwe_label)
+    return mwe_labels
