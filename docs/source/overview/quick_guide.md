@@ -59,3 +59,29 @@ Tag: A1.2   Description: title: Suitability description: General/abstract terms 
 Tag: A1.3   Description: title: Caution description: General/abstract terms relating to vigilance/care/prudence, or the lack of.
 Tag: A1.4   Description: title: Chance, luck description: General/abstract terms depicting likelihood/probability/providence, or the lack of.
 ```
+
+```{eval-rst}
+Multi Word Expressions (MWEs), like ``New York``, are often represented as a ``(start, end)`` slice per MWE, where ``end`` is exclusive in the same way as the builtin :class:`range` callable. :func:`usas_validator.utils.mwe_token_indexes_from_slices` expands a slice into the individual token indexes it covers, and :func:`usas_validator.utils.mwe_token_labels_from_indexes` then assigns each token a unique label per MWE, which is useful for telling which tokens belong together once you already have their per-token USAS tags:
+```
+
+``` python
+from usas_validator import utils
+
+# Tokens: The(0) New(1) York(2) Times(3) reported(4) news(5)
+# Two MWEs: "New York" (tokens 1-2) and "reported news" (tokens 4-5)
+mwe_slices = [(1, 3), (4, 6)]
+
+mwe_indexes = [utils.mwe_token_indexes_from_slices([mwe_slice]) for mwe_slice in mwe_slices]
+print(mwe_indexes)
+
+mwe_labels = utils.mwe_token_labels_from_indexes(mwe_indexes, number_tokens=6)
+print(mwe_labels)
+```
+
+Output:
+``` bash
+[frozenset({1, 2}), frozenset({4, 5})]
+[set(), {1}, {1}, set(), {2}, {2}]
+```
+
+Each set in `mwe_labels` corresponds to the token at that index: an empty set means the token isn't part of any MWE, and a set with more than one label means the token belongs to more than one, overlapping or discontinuous, MWE.

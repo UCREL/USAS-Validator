@@ -340,7 +340,7 @@ def mwe_token_indexes_from_slices(mwe_index_slices: list[tuple[int, int]]) -> fr
     token indexes they cover.
 
     Each tuple is a `(start, end)` slice, with `end` exclusive, in the same way as
-    the built-in `range`, e.g. `(2, 5)` covers indexes `2`, `3`, and `4`. A single
+    the built-in :class:`range` callable, e.g. `(2, 5)` covers indexes `2`, `3`, and `4`. A single
     token MWE is therefore represented as `(i, i + 1)`, which expands to just `i`.
 
     Args:
