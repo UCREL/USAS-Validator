@@ -332,3 +332,24 @@ def keep_valid_usas_tags(usas_tag_string: str, valid_usas_tags: set[str]) -> lis
         if filtered_usas_tags:
             filtered_usas_tag_groups.append(USASTagGroup(tags=filtered_usas_tags))
     return filtered_usas_tag_groups
+
+
+def get_all_mwe_token_indexes(mwe_index_slices: list[tuple[int, int]]) -> frozenset[int]:
+    """
+    Given a list of tuples that represent the start and end indexes of a
+    Multi Word Expression (MWE), it returns a frozenset of all the token indexes
+    that are part of the MWE. If the MWE is a single token then it returns a
+    frozenset of length 1 which is start index.
+
+    Args:
+        mwe_index_slices: A list of tuples that represent the start and end indexes of a
+            Multi Word Expression (MWE).
+
+    Returns:
+        A frozenset of all the token indexes that are part of the MWE, even if
+            the MWE is a single token.
+    """
+    all_mwe_token_indexes = set()
+    for mwe_index_range in mwe_index_slices:
+        all_mwe_token_indexes.update(range(*mwe_index_range))
+    return frozenset(all_mwe_token_indexes)
