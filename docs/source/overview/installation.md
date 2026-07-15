@@ -1,5 +1,5 @@
 # Installation
 
 ``` bash
-pip install -e .
+pip install usas-validator
 ```

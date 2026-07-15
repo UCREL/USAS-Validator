@@ -5,7 +5,7 @@ Validates USAS semantic tags, and other useful utilities for USAS semantic tags 
 ## Installation
 
 ``` bash
-pip install -e .
+pip install usas-validator
 ```
 
 ## Quick guide
