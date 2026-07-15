@@ -113,7 +113,7 @@ Output:
 If you only want to label genuine multi-token MWEs, filter `mwe_indexes` to entries with more than one token index (`len(mwe_index) > 1`) before calling `mwe_token_labels_from_indexes`.
 
 ```{eval-rst}
-In practice, a PyMUSAS tagger reports these ``(start, end)`` slices per token rather than per MWE: each token carries the list of slices for the MWE it belongs to (via ``token._.pymusas_mwe_indexes``), and single-token expressions are reported the same way as genuine MWEs. :func:`usas_validator.utils.mwe_labels_from_pymusas_indexes` wraps the filtering and labelling shown above into a single call: pass it one entry per token, in token order, and it drops single-token expressions, de-duplicates the tokens that share a MWE, and returns the same per-token label sets as :func:`usas_validator.utils.mwe_token_labels_from_indexes`:
+In practice, a PyMUSAS tagger, like the `Rule Based tagger <https://ucrel.github.io/pymusas/api/spacy_api/taggers/rule_based>`_, reports these ``(start, end)`` slices per token rather than per MWE: each token carries the list of slices for the MWE it belongs to (via ``token._.pymusas_mwe_indexes``), and single-token expressions are reported the same way as genuine MWEs. :func:`usas_validator.utils.mwe_labels_from_pymusas_indexes` wraps the filtering and labelling shown above into a single call: pass it one entry per token, in token order, and it drops single-token expressions, de-duplicates the tokens that share a MWE, and returns the same per-token label sets as :func:`usas_validator.utils.mwe_token_labels_from_indexes`:
 ```
 
 ``` python
