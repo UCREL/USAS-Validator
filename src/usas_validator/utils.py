@@ -381,7 +381,12 @@ def mwe_token_labels_from_indexes(mwe_indexes: list[frozenset[int]], number_toke
     Args:
         mwe_indexes: A list of frozensets of token indexes for each MWE. Every
             frozenset must be non-empty and every index must satisfy
-            `0 <= index < number_tokens`.
+            `0 <= index < number_tokens`. A singleton frozenset, e.g. `{2}`, is
+            treated as a single-token MWE (see the single token example below),
+            consistent with the `(i, i + 1)` slice convention used by
+            :func:`~usas_validator.utils.mwe_token_indexes_from_slices`; this
+            function does not distinguish genuine multi-token MWEs from
+            single-token ones.
         number_tokens: The number of tokens in the sentence.
 
     Returns:
@@ -404,6 +409,13 @@ def mwe_token_labels_from_indexes(mwe_indexes: list[frozenset[int]], number_toke
         >>> from usas_validator.utils import mwe_token_labels_from_indexes
         >>> mwe_token_labels_from_indexes([frozenset({2, 3})], 5)
         [set(), set(), {1}, {1}, set()]
+
+        A singleton frozenset is labelled the same way as any other MWE, even
+        though it represents a single token rather than a multi word expression:
+
+        >>> from usas_validator.utils import mwe_token_labels_from_indexes
+        >>> mwe_token_labels_from_indexes([frozenset({0}), frozenset({1, 2})], 3)
+        [{1}, {2}, {2}]
     """
     for mwe_index in mwe_indexes:
         if not mwe_index:

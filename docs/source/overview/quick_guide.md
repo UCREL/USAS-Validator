@@ -85,3 +85,29 @@ Output:
 ```
 
 Each set in `mwe_labels` corresponds to the token at that index: an empty set means the token isn't part of any MWE, and a set with more than one label means the token belongs to more than one, overlapping or discontinuous, MWE.
+
+```{eval-rst}
+Neither function distinguishes a genuine multi-token MWE from a single token: a ``(i, i + 1)`` slice, e.g. ``(0, 1)``, is expanded by :func:`usas_validator.utils.mwe_token_indexes_from_slices` into the singleton frozenset ``frozenset({0})``, and :func:`usas_validator.utils.mwe_token_labels_from_indexes` will happily assign that singleton its own label, the same as any other MWE:
+```
+
+``` python
+from usas_validator import utils
+
+# Tokens: The(0) cat(1) sat(2)
+# "The" (token 0) is passed in as if it were a single-token MWE, and "cat sat" (tokens 1-2) is a genuine MWE
+mwe_slices = [(0, 1), (1, 3)]
+
+mwe_indexes = [utils.mwe_token_indexes_from_slices([mwe_slice]) for mwe_slice in mwe_slices]
+print(mwe_indexes)
+
+mwe_labels = utils.mwe_token_labels_from_indexes(mwe_indexes, number_tokens=3)
+print(mwe_labels)
+```
+
+Output:
+``` bash
+[frozenset({0}), frozenset({1, 2})]
+[{1}, {2}, {2}]
+```
+
+If you only want to label genuine multi-token MWEs, filter `mwe_indexes` to entries with more than one token index (`len(mwe_index) > 1`) before calling `mwe_token_labels_from_indexes`.
