@@ -438,3 +438,59 @@ def mwe_token_labels_from_indexes(mwe_indexes: list[frozenset[int]], number_toke
         for mwe_index in mwe_index_with_min_value[0]:
             mwe_labels[mwe_index].add(mwe_label)
     return mwe_labels
+
+
+def mwe_labels_from_pymusas_indexes(pymusas_mwe_index_slices: list[list[tuple[int, int]]]) -> list[set[int]]:
+    """
+    Convert the raw, per-token Multi Word Expression (MWE) index slices produced by
+    a PyMUSAS tagger into MWE labels for each token in the sentence.
+
+    For each token, PyMUSAS reports a list of `(start, end)` slices, one per
+    token in the MWE it belongs to (more than one slice means the MWE is
+    discontinuous), following the same convention as
+    :func:`~usas_validator.utils.mwe_token_indexes_from_slices`. Single word
+    expressions are reported as a single `(i, i + 1)` slice and are not MWEs,
+    so they are filtered out here before labelling the remainder with
+    :func:`~usas_validator.utils.mwe_token_labels_from_indexes`.
+
+    Args:
+        pymusas_mwe_index_slices: One entry per token in the sentence, in
+            token order, each being the list of `(start, end)` MWE index
+            slices PyMUSAS reported for that token (e.g. from
+            `token._.pymusas_mwe_indexes`).
+
+    Returns:
+        A list, of the same length as `pymusas_mwe_index_slices`, of sets
+        that contain unique MWE labels per token, as returned by
+        :func:`~usas_validator.utils.mwe_token_labels_from_indexes`. Tokens
+        that are not part of a MWE are represented as an empty set.
+
+    Examples:
+        >>> from usas_validator.utils import mwe_labels_from_pymusas_indexes
+        >>> mwe_labels_from_pymusas_indexes([[(0, 2)], [(0, 2)], [(2, 3)]])
+        [{1}, {1}, set()]
+
+        Single token expressions, represented as `(i, i + 1)`, are not MWEs
+        and are therefore not labelled:
+
+        >>> from usas_validator.utils import mwe_labels_from_pymusas_indexes
+        >>> mwe_labels_from_pymusas_indexes([[(0, 1)], [(1, 2)]])
+        [set(), set()]
+
+        Discontinuous MWEs report more than one slice per token, but still
+        resolve to a single label:
+
+        >>> from usas_validator.utils import mwe_labels_from_pymusas_indexes
+        >>> mwe_labels_from_pymusas_indexes(
+        ...     [[(0, 1), (2, 3)], [(1, 2)], [(0, 1), (2, 3)]]
+        ... )
+        [{1}, set(), {1}]
+    """
+    unique_mwe_indexes: set[frozenset[int]] = set()
+    for token_mwe_index_slices in pymusas_mwe_index_slices:
+        token_mwe_indexes = mwe_token_indexes_from_slices(token_mwe_index_slices)
+        if len(token_mwe_indexes) > 1:
+            unique_mwe_indexes.add(token_mwe_indexes)
+
+    return mwe_token_labels_from_indexes(list(unique_mwe_indexes),
+                                        number_tokens=len(pymusas_mwe_index_slices))

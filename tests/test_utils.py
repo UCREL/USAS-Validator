@@ -346,3 +346,32 @@ def test_mwe_token_labels_from_indexes() -> None:
     # Test a token index at or beyond number_tokens is rejected.
     with pytest.raises(ValueError):
         utils.mwe_token_labels_from_indexes([frozenset({3})], 3)
+
+
+def test_mwe_labels_from_pymusas_indexes() -> None:
+    """Test the mwe_labels_from_pymusas_indexes function with various PyMUSAS MWE index slices."""
+
+    # Test a contiguous MWE spanning two tokens, the third token is not part of a MWE.
+    result = utils.mwe_labels_from_pymusas_indexes([[(0, 2)], [(0, 2)], [(2, 3)]])
+    assert result == [{1}, {1}, set()]
+
+    # Test single token expressions, represented as (i, i + 1), are not MWEs.
+    result = utils.mwe_labels_from_pymusas_indexes([[(0, 1)], [(1, 2)]])
+    assert result == [set(), set()]
+
+    # Test a discontinuous MWE, reported as more than one slice per token,
+    # still resolves to a single label.
+    result = utils.mwe_labels_from_pymusas_indexes(
+        [[(0, 1), (2, 3)], [(1, 2)], [(0, 1), (2, 3)]]
+    )
+    assert result == [{1}, set(), {1}]
+
+    # Test multiple MWEs are labelled by starting position order.
+    result = utils.mwe_labels_from_pymusas_indexes(
+        [[(0, 2)], [(0, 2)], [(2, 3)], [(3, 5)], [(3, 5)]]
+    )
+    assert result == [{1}, {1}, set(), {2}, {2}]
+
+    # Test an empty list of per-token slices returns an empty list.
+    result = utils.mwe_labels_from_pymusas_indexes([])
+    assert result == []

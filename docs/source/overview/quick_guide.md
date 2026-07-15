@@ -111,3 +111,23 @@ Output:
 ```
 
 If you only want to label genuine multi-token MWEs, filter `mwe_indexes` to entries with more than one token index (`len(mwe_index) > 1`) before calling `mwe_token_labels_from_indexes`.
+
+```{eval-rst}
+In practice, a PyMUSAS tagger reports these ``(start, end)`` slices per token rather than per MWE: each token carries the list of slices for the MWE it belongs to (via ``token._.pymusas_mwe_indexes``), and single-token expressions are reported the same way as genuine MWEs. :func:`usas_validator.utils.mwe_labels_from_pymusas_indexes` wraps the filtering and labelling shown above into a single call: pass it one entry per token, in token order, and it drops single-token expressions, de-duplicates the tokens that share a MWE, and returns the same per-token label sets as :func:`usas_validator.utils.mwe_token_labels_from_indexes`:
+```
+
+``` python
+from usas_validator import utils
+
+# Tokens: The(0) New(1) York(2) Times(3) reported(4) news(5)
+# "The" and "Times" are single-token expressions; "New York" and "reported news" are genuine MWEs
+pymusas_mwe_index_slices = [[(0, 1)], [(1, 3)], [(1, 3)], [(3, 4)], [(4, 6)], [(4, 6)]]
+
+mwe_labels = utils.mwe_labels_from_pymusas_indexes(pymusas_mwe_index_slices)
+print(mwe_labels)
+```
+
+Output:
+``` bash
+[set(), {1}, {1}, set(), {2}, {2}]
+```
