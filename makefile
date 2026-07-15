@@ -31,3 +31,17 @@ build-docs: remove-built-docs
 build-docs-gh: remove-built-docs
 	@echo "Building documentation for GitHub Pages to directory ./docs/build"
 	@cd docs && uv run sphinx-build -W -b html source build
+
+.PHONY: build-python-package
+build-python-package:
+	@echo "Building the Python package to directory ./dist"
+	@uv lock --check
+	@rm -rf ./dist
+	@uv build
+
+.PHONY: release-notes
+release-notes: build-python-package
+	@echo "Generating release notes for tag $${TAG}"
+	@uv run --no-project --script \
+	--with dist/usas_validator-$$(uv version --short)-py3-none-any.whl \
+	./scripts/release_notes.py
