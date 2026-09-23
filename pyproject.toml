@@ -1,6 +1,6 @@
 [project]
 name = "usas-validator"
-version = "0.1.0"
+version = "0.1.1"
 description = "Validates USAS Tags"
 authors = [
     { name = "UCREL Research Centre", email = "ucrel@lancaster.ac.uk" },
