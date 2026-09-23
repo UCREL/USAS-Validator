@@ -5,7 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [v0.1.1]()
+
+### Changed
+
+- `Z9` the definition of it has been changed so that it covers punctuation and encodings like XML tags, see [./src/usas_validator/data/usas/usas_mapper.yaml](./src/usas_validator/data/usas/usas_mapper.yaml)
+- Updated the docstring of the function `parse_usas_token_group` within [./src/usas_validator/utils.py](./src/usas_validator/utils.py) so that it explicitly states that `PUNCT` and `Df` tags are parsed as valid USAS tags, but in the future they should be replaced.
 
 ## [v0.1.0](https://github.com/UCREL/USAS-Validator/releases/tag/v0.1.0)
 

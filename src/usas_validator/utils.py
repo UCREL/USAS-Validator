@@ -59,6 +59,16 @@ def parse_usas_token_group(usas_tag_group_text: str,
         tags=[USASTag(tag='Z2', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False), USASTag(tag='S2', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=True, male=True, antecedents=False, neuter=False, idiom=False)]
         tags=[USASTag(tag='Z3', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)]
 
+        `PUNCT` and `Df` are valid USAS tags, in this sense but we hope in the future 
+        that they will be replaced (`PUNCT` with `Z9` and `Df` should not exist 
+        as it is a placeholder tag see https://github.com/UCREL/pymusas/issues/26) 
+        in their own right and are captured
+        as such rather than being ignored:
+
+        >>> from usas_validator.utils import parse_usas_token_group
+        >>> parse_usas_token_group("PUNCT Df")
+        [USASTagGroup(tags=[USASTag(tag='PUNCT', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)]), USASTagGroup(tags=[USASTag(tag='Df', number_positive_markers=0, number_negative_markers=0, rarity_marker_1=False, rarity_marker_2=False, female=False, male=False, antecedents=False, neuter=False, idiom=False)])]
+
         When using `strict=True`:
 
         >>> from usas_validator.utils import parse_usas_token_group
